@@ -59,6 +59,8 @@ interface AppContextType {
   removeDiagnosis: (patientId: string, diagnosis: string) => Promise<void>;
   orderLabReport: (patientId: string, testName: string, notes?: string) => Promise<void>;
   fillLabReport: (patientId: string, reportId: string, results: LabReportResult[], notes?: string) => Promise<void>;
+  assignPatientBed: (patientId: string, bedNumber: string) => Promise<void>;
+  releasePatientBed: (patientId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -313,6 +315,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const assignPatientBed = async (patientId: string, bedNumber: string) => {
+    setIsLoading(true);
+    try {
+      await mockApi.assignBed(patientId, bedNumber);
+      addToast(`Patient bed assigned to "${bedNumber}".`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to assign bed.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const releasePatientBed = async (patientId: string) => {
+    setIsLoading(true);
+    try {
+      await mockApi.releaseBed(patientId);
+      addToast('Patient bed released successfully.', 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to release bed.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -345,7 +373,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addDiagnosis,
         removeDiagnosis,
         orderLabReport,
-        fillLabReport
+        fillLabReport,
+        assignPatientBed,
+        releasePatientBed
       }}
     >
       {children}

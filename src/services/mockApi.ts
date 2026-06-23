@@ -111,6 +111,7 @@ const INITIAL_PATIENTS: Patient[] = [
     address: '123 Pine St, Metro City, NY 10001',
     status: 'Admitted',
     lastVisit: '2026-06-23T09:30:00Z',
+    bedNumber: 'ER-102',
     medicalRecord: {
       diagnoses: ['Essential Hypertension', 'Type 2 Diabetes Mellitus', 'Mild Hypercholesterolemia'],
       allergies: ['Penicillin', 'Peanuts'],
@@ -222,6 +223,7 @@ const INITIAL_PATIENTS: Patient[] = [
     address: '789 Maple Rd, Metropolis, NY 10022',
     status: 'Critical',
     lastVisit: '2026-06-23T12:00:00Z',
+    bedNumber: 'ICU-201',
     medicalRecord: {
       diagnoses: ['Traumatic Rib Fracture', 'Mild Pneumothorax (Resolving)'],
       allergies: [],
@@ -856,6 +858,31 @@ export const mockApi = {
 
     LocalDB.setPatients(patients);
     this.addLog('Patient', 'Lab Test Completed', `Results uploaded for "${patients[index].medicalRecord.labReports[rIdx].testName}" - Patient ${patients[index].name}.`, 'Pathologist Lab');
+    return patients[index];
+  },
+
+  async assignBed(id: string, bedNumber: string): Promise<Patient> {
+    await delay(300);
+    const patients = LocalDB.getPatients();
+    const index = patients.findIndex(p => p.id === id);
+    if (index === -1) throw new Error('Patient not found');
+
+    patients[index].bedNumber = bedNumber;
+    LocalDB.setPatients(patients);
+    this.addLog('Patient', 'Bed Assigned', `Assigned bed "${bedNumber}" to patient ${patients[index].name}.`, 'Attending Physician');
+    return patients[index];
+  },
+
+  async releaseBed(id: string): Promise<Patient> {
+    await delay(300);
+    const patients = LocalDB.getPatients();
+    const index = patients.findIndex(p => p.id === id);
+    if (index === -1) throw new Error('Patient not found');
+
+    const previousBed = patients[index].bedNumber;
+    patients[index].bedNumber = undefined;
+    LocalDB.setPatients(patients);
+    this.addLog('Patient', 'Bed Released', `Released bed "${previousBed}" from patient ${patients[index].name}.`, 'Attending Physician');
     return patients[index];
   },
 
