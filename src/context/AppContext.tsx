@@ -10,11 +10,13 @@ import type {
   User, 
   VitalsReading, 
   Prescription,
-  LabReportResult
+  LabReportResult,
+  Nurse,
+  ClinicalDepartment
 } from '../types';
 import { mockApi } from '../services/mockApi';
 
-export type ViewType = 'dashboard' | 'patients' | 'appointments' | 'doctors' | 'billing';
+export type ViewType = 'dashboard' | 'patients' | 'appointments' | 'doctors' | 'billing' | 'staff';
 
 export interface ToastMessage {
   id: string;
@@ -61,6 +63,15 @@ interface AppContextType {
   fillLabReport: (patientId: string, reportId: string, results: LabReportResult[], notes?: string) => Promise<void>;
   assignPatientBed: (patientId: string, bedNumber: string) => Promise<void>;
   releasePatientBed: (patientId: string) => Promise<void>;
+  
+  // Staff & Departments State
+  nurses: Nurse[];
+  departments: ClinicalDepartment[];
+  registerDoctor: (doctorData: Omit<Doctor, 'id'>) => Promise<void>;
+  registerNurse: (nurseData: Omit<Nurse, 'id' | 'role'>) => Promise<void>;
+  changeNurseStatus: (id: string, status: Nurse['status']) => Promise<void>;
+  transferStaffDepartment: (staffId: string, role: 'Doctor' | 'Nurse', department: string) => Promise<void>;
+  setDepartmentAlertLevel: (id: string, alertLevel: ClinicalDepartment['activeAlert']) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -85,6 +96,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
+  const [nurses, setNurses] = useState<Nurse[]>([]);
+  const [departments, setDepartments] = useState<ClinicalDepartment[]>([]);
   
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -113,13 +126,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const refreshData = async () => {
     setIsLoading(true);
     try {
-      const [fetchedPatients, fetchedApts, fetchedDocs, fetchedInvoices, fetchedLogs, fetchedStats] = await Promise.all([
+      const [
+        fetchedPatients, 
+        fetchedApts, 
+        fetchedDocs, 
+        fetchedInvoices, 
+        fetchedLogs, 
+        fetchedStats,
+        fetchedNurses,
+        fetchedDepartments
+      ] = await Promise.all([
         mockApi.getPatients(),
         mockApi.getAppointments(),
         mockApi.getDoctors(),
         mockApi.getInvoices(),
         mockApi.getLogs(),
-        mockApi.getStats()
+        mockApi.getStats(),
+        mockApi.getNurses(),
+        mockApi.getDepartments()
       ]);
       
       setPatients(fetchedPatients);
@@ -128,6 +152,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setInvoices(fetchedInvoices);
       setLogs(fetchedLogs);
       setStats(fetchedStats);
+      setNurses(fetchedNurses);
+      setDepartments(fetchedDepartments);
     } catch (err: any) {
       addToast(err?.message || 'Failed to fetch hospital records.', 'danger');
     } finally {
@@ -341,6 +367,75 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const registerDoctor = async (doctorData: Omit<Doctor, 'id'>) => {
+    setIsLoading(true);
+    try {
+      await mockApi.addDoctor(doctorData);
+      addToast(`Doctor "${doctorData.name}" registered successfully.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Doctor registration failed.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const registerNurse = async (nurseData: Omit<Nurse, 'id' | 'role'>) => {
+    setIsLoading(true);
+    try {
+      await mockApi.addNurse(nurseData);
+      addToast(`Nurse "${nurseData.name}" registered successfully.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Nurse registration failed.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const changeNurseStatus = async (id: string, status: Nurse['status']) => {
+    setIsLoading(true);
+    try {
+      await mockApi.updateNurseStatus(id, status);
+      addToast(`Nurse shift updated to ${status}.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Shift update failed.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const transferStaffDepartment = async (staffId: string, role: 'Doctor' | 'Nurse', department: string) => {
+    setIsLoading(true);
+    try {
+      if (role === 'Doctor') {
+        await mockApi.updateDoctorDepartment(staffId, department);
+      } else {
+        await mockApi.updateNurseDepartment(staffId, department);
+      }
+      addToast(`Staff reassigned to ${department} department.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Department transfer failed.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setDepartmentAlertLevel = async (id: string, alertLevel: ClinicalDepartment['activeAlert']) => {
+    setIsLoading(true);
+    try {
+      await mockApi.updateDepartmentAlert(id, alertLevel);
+      addToast(`Department alert level set to ${alertLevel}.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to update alert level.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -375,7 +470,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         orderLabReport,
         fillLabReport,
         assignPatientBed,
-        releasePatientBed
+        releasePatientBed,
+        nurses,
+        departments,
+        registerDoctor,
+        registerNurse,
+        changeNurseStatus,
+        transferStaffDepartment,
+        setDepartmentAlertLevel
       }}
     >
       {children}
