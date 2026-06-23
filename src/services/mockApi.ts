@@ -12,7 +12,10 @@ import type {
   InvoiceStatus,
   ClaimStatus,
   LabReport,
-  LabReportResult
+  LabReportResult,
+  Ambulance,
+  AmbulanceStatus,
+  DispatchSeverity
 } from '../types';
 import { generateUUID } from '../utils/helpers';
 
@@ -493,6 +496,42 @@ const INITIAL_LOGS: ActivityLog[] = [
   }
 ];
 
+const INITIAL_AMBULANCES: Ambulance[] = [
+  {
+    id: 'amb-1',
+    vehicleNumber: 'AMB-911',
+    driverName: 'Frank Callahan',
+    paramedicName: "Sarah O'Connor",
+    status: 'Available',
+  },
+  {
+    id: 'amb-2',
+    vehicleNumber: 'AMB-912',
+    driverName: 'John Miller',
+    paramedicName: 'Emily Watson',
+    status: 'Dispatched',
+    location: '456 Main St, Downtown',
+    patientId: 'pat-5',
+    patientName: 'Michael Johnson',
+    severity: 'Urgent',
+    progress: 1, // En Route
+  },
+  {
+    id: 'amb-3',
+    vehicleNumber: 'AMB-913',
+    driverName: 'Carl Lawson',
+    paramedicName: 'Robert Vance',
+    status: 'Available',
+  },
+  {
+    id: 'amb-4',
+    vehicleNumber: 'AMB-914',
+    driverName: 'Mark Ronson',
+    paramedicName: 'Jenny Lind',
+    status: 'Maintenance',
+  }
+];
+
 // --- STORAGE MANAGER ---
 class LocalDB {
   private static get<T>(key: string, initial: T[]): T[] {
@@ -522,6 +561,9 @@ class LocalDB {
 
   static getLogs() { return this.get<ActivityLog>('logs', INITIAL_LOGS); }
   static setLogs(data: ActivityLog[]) { this.set('logs', data); }
+
+  static getAmbulances() { return this.get<Ambulance>('ambulances', INITIAL_AMBULANCES); }
+  static setAmbulances(data: Ambulance[]) { this.set('ambulances', data); }
 }
 
 // --- API METHODS ---
@@ -884,6 +926,89 @@ export const mockApi = {
     LocalDB.setPatients(patients);
     this.addLog('Patient', 'Bed Released', `Released bed "${previousBed}" from patient ${patients[index].name}.`, 'Attending Physician');
     return patients[index];
+  },
+
+  // Ambulances
+  async getAmbulances(): Promise<Ambulance[]> {
+    await delay(400);
+    return LocalDB.getAmbulances();
+  },
+
+  async dispatchAmbulance(ambulanceId: string, patientId: string, patientName: string, location: string, severity: DispatchSeverity): Promise<Ambulance> {
+    await delay(400);
+    const ambulances = LocalDB.getAmbulances();
+    const index = ambulances.findIndex(a => a.id === ambulanceId);
+    if (index === -1) throw new Error('Ambulance not found');
+
+    ambulances[index] = {
+      ...ambulances[index],
+      status: 'Dispatched',
+      location,
+      patientId,
+      patientName,
+      severity,
+      progress: 0, // Dispatched
+    };
+
+    LocalDB.setAmbulances(ambulances);
+    this.addLog('System', 'Ambulance Dispatched', `Dispatched ${ambulances[index].vehicleNumber} to ${location} for patient ${patientName}.`, 'Emergency Dispatcher');
+    return ambulances[index];
+  },
+
+  async updateAmbulanceProgress(ambulanceId: string): Promise<Ambulance> {
+    await delay(300);
+    const ambulances = LocalDB.getAmbulances();
+    const index = ambulances.findIndex(a => a.id === ambulanceId);
+    if (index === -1) throw new Error('Ambulance not found');
+
+    const currentProgress = ambulances[index].progress ?? 0;
+    if (currentProgress < 4) {
+      const nextProgress = currentProgress + 1;
+      ambulances[index].progress = nextProgress;
+      
+      let progressText = 'En Route';
+      if (nextProgress === 2) progressText = 'On Scene';
+      if (nextProgress === 3) progressText = 'In Transit';
+      if (nextProgress === 4) progressText = 'Arrived at Clinic';
+
+      this.addLog('System', 'Transit Checkpoint', `Ambulance ${ambulances[index].vehicleNumber} updated status: ${progressText}.`, 'Transit GPS Tracker');
+    } else {
+      // Arrived -> Release back to Available
+      ambulances[index] = {
+        id: ambulances[index].id,
+        vehicleNumber: ambulances[index].vehicleNumber,
+        driverName: ambulances[index].driverName,
+        paramedicName: ambulances[index].paramedicName,
+        status: 'Available'
+      };
+      this.addLog('System', 'Ambulance Released', `Ambulance ${ambulances[index].vehicleNumber} is now available back at station.`, 'Emergency Dispatcher');
+    }
+
+    LocalDB.setAmbulances(ambulances);
+    return ambulances[index];
+  },
+
+  async updateAmbulanceStatus(ambulanceId: string, status: AmbulanceStatus): Promise<Ambulance> {
+    await delay(300);
+    const ambulances = LocalDB.getAmbulances();
+    const index = ambulances.findIndex(a => a.id === ambulanceId);
+    if (index === -1) throw new Error('Ambulance not found');
+
+    ambulances[index] = {
+      ...ambulances[index],
+      status
+    };
+    if (status !== 'Dispatched') {
+      ambulances[index].location = undefined;
+      ambulances[index].patientId = undefined;
+      ambulances[index].patientName = undefined;
+      ambulances[index].severity = undefined;
+      ambulances[index].progress = undefined;
+    }
+
+    LocalDB.setAmbulances(ambulances);
+    this.addLog('System', 'Ambulance Status Updated', `Ambulance ${ambulances[index].vehicleNumber} status changed to ${status}.`, 'Emergency Dispatcher');
+    return ambulances[index];
   },
 
   // Audit Logs

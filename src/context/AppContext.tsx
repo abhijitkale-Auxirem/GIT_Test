@@ -10,11 +10,14 @@ import type {
   User, 
   VitalsReading, 
   Prescription,
-  LabReportResult
+  LabReportResult,
+  Ambulance,
+  AmbulanceStatus,
+  DispatchSeverity
 } from '../types';
 import { mockApi } from '../services/mockApi';
 
-export type ViewType = 'dashboard' | 'patients' | 'appointments' | 'doctors' | 'billing';
+export type ViewType = 'dashboard' | 'patients' | 'appointments' | 'doctors' | 'billing' | 'ambulance';
 
 export interface ToastMessage {
   id: string;
@@ -61,6 +64,10 @@ interface AppContextType {
   fillLabReport: (patientId: string, reportId: string, results: LabReportResult[], notes?: string) => Promise<void>;
   assignPatientBed: (patientId: string, bedNumber: string) => Promise<void>;
   releasePatientBed: (patientId: string) => Promise<void>;
+  ambulances: Ambulance[];
+  dispatchUnit: (ambulanceId: string, patientId: string, location: string, severity: DispatchSeverity) => Promise<void>;
+  stepAmbulanceProgress: (ambulanceId: string) => Promise<void>;
+  setAmbulanceStatus: (ambulanceId: string, status: AmbulanceStatus) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -85,6 +92,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
+  const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
   
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -113,13 +121,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const refreshData = async () => {
     setIsLoading(true);
     try {
-      const [fetchedPatients, fetchedApts, fetchedDocs, fetchedInvoices, fetchedLogs, fetchedStats] = await Promise.all([
+      const [
+        fetchedPatients, 
+        fetchedApts, 
+        fetchedDocs, 
+        fetchedInvoices, 
+        fetchedLogs, 
+        fetchedStats, 
+        fetchedAmbulances
+      ] = await Promise.all([
         mockApi.getPatients(),
         mockApi.getAppointments(),
         mockApi.getDoctors(),
         mockApi.getInvoices(),
         mockApi.getLogs(),
-        mockApi.getStats()
+        mockApi.getStats(),
+        mockApi.getAmbulances()
       ]);
       
       setPatients(fetchedPatients);
@@ -128,6 +145,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setInvoices(fetchedInvoices);
       setLogs(fetchedLogs);
       setStats(fetchedStats);
+      setAmbulances(fetchedAmbulances);
     } catch (err: any) {
       addToast(err?.message || 'Failed to fetch hospital records.', 'danger');
     } finally {
@@ -341,6 +359,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const dispatchUnit = async (ambulanceId: string, patientId: string, location: string, severity: DispatchSeverity) => {
+    setIsLoading(true);
+    try {
+      const patient = patients.find(p => p.id === patientId);
+      const patientName = patient ? patient.name : 'Unknown Patient';
+      await mockApi.dispatchAmbulance(ambulanceId, patientId, patientName, location, severity);
+      addToast(`Ambulance dispatch authorized.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to dispatch ambulance.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const stepAmbulanceProgress = async (ambulanceId: string) => {
+    setIsLoading(true);
+    try {
+      await mockApi.updateAmbulanceProgress(ambulanceId);
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to update transit checkpoint.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setAmbulanceStatus = async (ambulanceId: string, status: AmbulanceStatus) => {
+    setIsLoading(true);
+    try {
+      await mockApi.updateAmbulanceStatus(ambulanceId, status);
+      addToast(`Ambulance status updated to ${status}.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to update ambulance status.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -375,7 +433,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         orderLabReport,
         fillLabReport,
         assignPatientBed,
-        releasePatientBed
+        releasePatientBed,
+        ambulances,
+        dispatchUnit,
+        stepAmbulanceProgress,
+        setAmbulanceStatus
       }}
     >
       {children}

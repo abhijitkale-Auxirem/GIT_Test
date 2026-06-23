@@ -150,3 +150,19 @@ export interface SystemStats {
   revenueThisMonth: number;
   pendingClaims: number;
 }
+
+export type AmbulanceStatus = 'Available' | 'Dispatched' | 'Maintenance' | 'Off Duty';
+export type DispatchSeverity = 'Routine' | 'Urgent' | 'Critical';
+
+export interface Ambulance {
+  id: string;
+  vehicleNumber: string;
+  driverName: string;
+  paramedicName: string;
+  status: AmbulanceStatus;
+  location?: string;
+  patientId?: string;
+  patientName?: string;
+  severity?: DispatchSeverity;
+  progress?: number; // 0: Dispatched, 1: En Route, 2: On Scene, 3: In Transit, 4: Arrived
+}

@@ -12,7 +12,8 @@ import {
   HeartPulse, 
   ShieldCheck,
   Sun,
-  Moon
+  Moon,
+  Truck
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -32,6 +33,7 @@ export const Sidebar: React.FC = () => {
     { view: 'appointments', label: 'Appointments', icon: Calendar },
     { view: 'doctors', label: 'Doctors Shifts', icon: Activity },
     { view: 'billing', label: 'Billing & Claims', icon: DollarSign },
+    { view: 'ambulance', label: 'Emergency Fleet', icon: Truck },
   ];
 
   return (
