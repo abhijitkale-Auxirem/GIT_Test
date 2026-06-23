@@ -15,7 +15,9 @@ import type {
   LabReportResult,
   Ambulance,
   AmbulanceStatus,
-  DispatchSeverity
+  DispatchSeverity,
+  Nurse,
+  ClinicalDepartment
 } from '../types';
 import { generateUUID } from '../utils/helpers';
 
@@ -78,6 +80,112 @@ const INITIAL_DOCTORS: Doctor[] = [
     status: 'On Duty',
     rating: 4.9,
     shiftHours: '12:00 PM - 08:00 PM',
+  }
+];
+
+const INITIAL_NURSES: Nurse[] = [
+  {
+    id: 'nur-1',
+    name: 'Nurse Jane Doe',
+    role: 'Nurse',
+    department: 'Emergency Medicine',
+    email: 'j.doe@carepulse.com',
+    contact: '+1 (555) 789-0123',
+    status: 'On Duty',
+    shiftHours: '07:00 AM - 03:00 PM',
+  },
+  {
+    id: 'nur-2',
+    name: 'Nurse David Smith',
+    role: 'Nurse',
+    department: 'Cardiology',
+    email: 'd.smith@carepulse.com',
+    contact: '+1 (555) 890-1234',
+    status: 'On Duty',
+    shiftHours: '03:00 PM - 11:00 PM',
+  },
+  {
+    id: 'nur-3',
+    name: 'Nurse Maria Garcia',
+    role: 'Nurse',
+    department: 'Pediatrics',
+    email: 'm.garcia@carepulse.com',
+    contact: '+1 (555) 901-2345',
+    status: 'Available',
+    shiftHours: '09:00 AM - 05:00 PM',
+  },
+  {
+    id: 'nur-4',
+    name: 'Nurse Alex Johnson',
+    role: 'Nurse',
+    department: 'Neurology',
+    email: 'a.johnson@carepulse.com',
+    contact: '+1 (555) 012-3456',
+    status: 'Off Duty',
+    shiftHours: '11:00 PM - 07:00 AM',
+  }
+];
+
+const INITIAL_DEPARTMENTS: ClinicalDepartment[] = [
+  {
+    id: 'dept-1',
+    name: 'Cardiology',
+    code: 'CARD',
+    headDoctorId: 'doc-1',
+    headDoctorName: 'Dr. Sarah Jenkins',
+    bedCapacity: 15,
+    occupiedBeds: 6,
+    activeAlert: 'Normal'
+  },
+  {
+    id: 'dept-2',
+    name: 'Neurology',
+    code: 'NEUR',
+    headDoctorId: 'doc-2',
+    headDoctorName: 'Dr. Marcus Vance',
+    bedCapacity: 10,
+    occupiedBeds: 4,
+    activeAlert: 'Normal'
+  },
+  {
+    id: 'dept-3',
+    name: 'Pediatrics',
+    code: 'PED',
+    headDoctorId: 'doc-3',
+    headDoctorName: 'Dr. Elena Rostova',
+    bedCapacity: 20,
+    occupiedBeds: 8,
+    activeAlert: 'Normal'
+  },
+  {
+    id: 'dept-4',
+    name: 'Orthopedics',
+    code: 'ORTH',
+    headDoctorId: 'doc-4',
+    headDoctorName: 'Dr. David Kim',
+    bedCapacity: 12,
+    occupiedBeds: 5,
+    activeAlert: 'Understaffed'
+  },
+  {
+    id: 'dept-5',
+    name: 'Emergency Medicine',
+    code: 'ER',
+    headDoctorId: 'doc-5',
+    headDoctorName: 'Dr. Chloe Patel',
+    bedCapacity: 25,
+    occupiedBeds: 18,
+    activeAlert: 'Critical Load'
+  },
+  {
+    id: 'dept-6',
+    name: 'Pathology Lab',
+    code: 'PATH',
+    headDoctorId: 'doc-1',
+    headDoctorName: 'Dr. Sarah Jenkins',
+    bedCapacity: 0,
+    occupiedBeds: 0,
+    activeAlert: 'Normal'
   }
 ];
 
@@ -556,6 +664,12 @@ class LocalDB {
   static getDoctors() { return this.get<Doctor>('doctors', INITIAL_DOCTORS); }
   static setDoctors(data: Doctor[]) { this.set('doctors', data); }
 
+  static getNurses() { return this.get<Nurse>('nurses', INITIAL_NURSES); }
+  static setNurses(data: Nurse[]) { this.set('nurses', data); }
+
+  static getDepartments() { return this.get<ClinicalDepartment>('departments', INITIAL_DEPARTMENTS); }
+  static setDepartments(data: ClinicalDepartment[]) { this.set('departments', data); }
+
   static getInvoices() { return this.get<Invoice>('invoices', INITIAL_INVOICES); }
   static setInvoices(data: Invoice[]) { this.set('invoices', data); }
 
@@ -1009,6 +1123,94 @@ export const mockApi = {
     LocalDB.setAmbulances(ambulances);
     this.addLog('System', 'Ambulance Status Updated', `Ambulance ${ambulances[index].vehicleNumber} status changed to ${status}.`, 'Emergency Dispatcher');
     return ambulances[index];
+  },
+
+  // Doctor Department Assignment
+  async updateDoctorDepartment(id: string, department: string): Promise<Doctor> {
+    await delay(300);
+    const doctors = LocalDB.getDoctors();
+    const index = doctors.findIndex(d => d.id === id);
+    if (index === -1) throw new Error('Doctor not found');
+    
+    doctors[index].department = department;
+    LocalDB.setDoctors(doctors);
+    this.addLog('Staff', 'Department Transfer', `Transferred Doctor ${doctors[index].name} to department: ${department}.`, 'Medical Director');
+    return doctors[index];
+  },
+
+  async addDoctor(doctorData: Omit<Doctor, 'id'>): Promise<Doctor> {
+    await delay(500);
+    const doctors = LocalDB.getDoctors();
+    const newDoctor: Doctor = {
+      ...doctorData,
+      id: `doc-${generateUUID().substring(0, 5)}`
+    };
+    doctors.push(newDoctor);
+    LocalDB.setDoctors(doctors);
+    this.addLog('Staff', 'Staff Registered', `Registered Doctor ${newDoctor.name} in department ${newDoctor.department}.`, 'HR Department');
+    return newDoctor;
+  },
+
+  // Nurses API
+  async getNurses(): Promise<Nurse[]> {
+    await delay(400);
+    return LocalDB.getNurses();
+  },
+
+  async addNurse(nurseData: Omit<Nurse, 'id' | 'role'>): Promise<Nurse> {
+    await delay(500);
+    const nurses = LocalDB.getNurses();
+    const newNurse: Nurse = {
+      ...nurseData,
+      id: `nur-${generateUUID().substring(0, 5)}`,
+      role: 'Nurse'
+    };
+    nurses.push(newNurse);
+    LocalDB.setNurses(nurses);
+    this.addLog('Staff', 'Staff Registered', `Registered Nurse ${newNurse.name} in department ${newNurse.department}.`, 'HR Department');
+    return newNurse;
+  },
+
+  async updateNurseStatus(id: string, status: Nurse['status']): Promise<Nurse> {
+    await delay(300);
+    const nurses = LocalDB.getNurses();
+    const index = nurses.findIndex(n => n.id === id);
+    if (index === -1) throw new Error('Nurse not found');
+
+    nurses[index].status = status;
+    LocalDB.setNurses(nurses);
+    this.addLog('Staff', 'Shift Updated', `Updated Nurse ${nurses[index].name} shift status to ${status}.`, 'Shift Coordinator');
+    return nurses[index];
+  },
+
+  async updateNurseDepartment(id: string, department: string): Promise<Nurse> {
+    await delay(300);
+    const nurses = LocalDB.getNurses();
+    const index = nurses.findIndex(n => n.id === id);
+    if (index === -1) throw new Error('Nurse not found');
+
+    nurses[index].department = department;
+    LocalDB.setNurses(nurses);
+    this.addLog('Staff', 'Department Transfer', `Transferred Nurse ${nurses[index].name} to department: ${department}.`, 'Medical Director');
+    return nurses[index];
+  },
+
+  // Clinical Departments API
+  async getDepartments(): Promise<ClinicalDepartment[]> {
+    await delay(300);
+    return LocalDB.getDepartments();
+  },
+
+  async updateDepartmentAlert(id: string, alertLevel: ClinicalDepartment['activeAlert']): Promise<ClinicalDepartment> {
+    await delay(300);
+    const departments = LocalDB.getDepartments();
+    const index = departments.findIndex(d => d.id === id);
+    if (index === -1) throw new Error('Department not found');
+
+    departments[index].activeAlert = alertLevel;
+    LocalDB.setDepartments(departments);
+    this.addLog('System', 'Department Alert', `Updated department "${departments[index].name}" alert state to ${alertLevel}.`, 'System Dashboard');
+    return departments[index];
   },
 
   // Audit Logs

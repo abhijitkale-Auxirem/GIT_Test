@@ -8,6 +8,7 @@ import AppointmentsView from './features/appointments/AppointmentsView';
 import DoctorsView from './features/doctors/DoctorsView';
 import BillingView from './features/billing/BillingView';
 import AmbulanceView from './features/ambulance/AmbulanceView';
+import StaffView from './features/staff/StaffView';
 import { HeartPulse, X } from 'lucide-react';
 import './App.css';
 
@@ -28,6 +29,8 @@ const AppContent: React.FC = () => {
         return <BillingView />;
       case 'ambulance':
         return <AmbulanceView />;
+      case 'staff':
+        return <StaffView />;
       default:
         return <DashboardView />;
     }

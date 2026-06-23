@@ -13,7 +13,8 @@ import {
   ShieldCheck,
   Sun,
   Moon,
-  Truck
+  Truck,
+  Network
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -34,6 +35,7 @@ export const Sidebar: React.FC = () => {
     { view: 'doctors', label: 'Doctors Shifts', icon: Activity },
     { view: 'billing', label: 'Billing & Claims', icon: DollarSign },
     { view: 'ambulance', label: 'Emergency Fleet', icon: Truck },
+    { view: 'staff', label: 'Staff & Depts', icon: Network },
   ];
 
   return (

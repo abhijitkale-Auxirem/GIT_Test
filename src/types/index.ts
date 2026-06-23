@@ -166,3 +166,29 @@ export interface Ambulance {
   severity?: DispatchSeverity;
   progress?: number; // 0: Dispatched, 1: En Route, 2: On Scene, 3: In Transit, 4: Arrived
 }
+
+export type StaffRole = 'Doctor' | 'Nurse' | 'Support';
+
+export interface Nurse {
+  id: string;
+  name: string;
+  role: 'Nurse';
+  department: string;
+  specialization?: string;
+  email: string;
+  contact: string;
+  status: 'On Duty' | 'Available' | 'Off Duty' | 'On Leave';
+  shiftHours: string;
+  image?: string;
+}
+
+export interface ClinicalDepartment {
+  id: string;
+  name: string;
+  code: string;
+  headDoctorId: string;
+  headDoctorName: string;
+  bedCapacity: number;
+  occupiedBeds: number;
+  activeAlert: 'Normal' | 'Understaffed' | 'Critical Load';
+}
