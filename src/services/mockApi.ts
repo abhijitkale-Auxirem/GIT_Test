@@ -1124,7 +1124,6 @@ export const mockApi = {
     this.addLog('System', 'Ambulance Status Updated', `Ambulance ${ambulances[index].vehicleNumber} status changed to ${status}.`, 'Emergency Dispatcher');
     return ambulances[index];
   },
-
   // Doctor Department Assignment
   async updateDoctorDepartment(id: string, department: string): Promise<Doctor> {
     await delay(300);

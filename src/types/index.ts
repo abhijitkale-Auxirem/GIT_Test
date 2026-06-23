@@ -166,7 +166,6 @@ export interface Ambulance {
   severity?: DispatchSeverity;
   progress?: number; // 0: Dispatched, 1: En Route, 2: On Scene, 3: In Transit, 4: Arrived
 }
-
 export type StaffRole = 'Doctor' | 'Nurse' | 'Support';
 
 export interface Nurse {
@@ -192,3 +191,4 @@ export interface ClinicalDepartment {
   occupiedBeds: number;
   activeAlert: 'Normal' | 'Understaffed' | 'Critical Load';
 }
+

@@ -392,7 +392,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setIsLoading(false);
     }
   };
-
   const registerDoctor = async (doctorData: Omit<Doctor, 'id'>) => {
     setIsLoading(true);
     try {
@@ -417,7 +416,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setIsLoading(false);
     }
   };
-
   const registerNurse = async (nurseData: Omit<Nurse, 'id' | 'role'>) => {
     setIsLoading(true);
     try {
@@ -443,7 +441,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setIsLoading(false);
     }
   };
-
   const changeNurseStatus = async (id: string, status: Nurse['status']) => {
     setIsLoading(true);
     try {
@@ -522,7 +519,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         fillLabReport,
         assignPatientBed,
         releasePatientBed,
-         ambulances,
+        ambulances,
         dispatchUnit,
         stepAmbulanceProgress,
         setAmbulanceStatus,
