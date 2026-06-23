@@ -407,3 +407,210 @@
   justify-content: flex-end;
   gap: 0.75rem;
 }
+
+/* Bed Grid and ER Triage waitlist styles */
+
+.bed-occupancy-section {
+  padding: 1.5rem;
+}
+
+.wards-grid {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 992px) {
+  .wards-grid {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
+.ward-column {
+  background: rgba(255, 255, 255, 0.005);
+  border: 1px dashed rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+}
+
+.ward-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 0.5rem;
+}
+
+.ward-column:nth-child(2) .ward-title {
+  border-left-color: var(--color-secondary);
+}
+
+.ward-column:nth-child(3) .ward-title {
+  border-left-color: var(--status-success);
+}
+
+.beds-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.bed-card {
+  padding: 0.85rem;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast) ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.bed-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--text-muted);
+}
+
+.bed-card.occupied.icu::before { background: var(--status-danger); }
+.bed-card.occupied.er::before { background: var(--color-primary); }
+.bed-card.occupied.gen-ward::before { background: var(--status-success); }
+
+.bed-card.occupied {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.bed-card.vacant {
+  border-style: dashed;
+}
+
+.bed-card.vacant:hover {
+  border-color: var(--border-color-hover);
+  background: rgba(255, 255, 255, 0.025);
+  transform: translateY(-1px);
+}
+
+.bed-header {
+  font-size: 0.75rem;
+}
+
+.bed-status-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-sm);
+}
+
+.bed-status-badge.occupied {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.bed-status-badge.vacant {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+}
+
+.bed-occupant-info {
+  margin-top: 0.25rem;
+}
+
+.occupant-name {
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.occupant-meta {
+  color: var(--text-muted);
+}
+
+.occupant-status {
+  align-items: center;
+}
+
+.triage-badge {
+  display: inline-flex;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--radius-sm);
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.badge-critical {
+  background: var(--status-danger-bg);
+  color: var(--status-danger);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.badge-admitted {
+  background: var(--status-info-bg);
+  color: var(--status-info);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+}
+
+.badge-outpatient {
+  background: var(--status-success-bg);
+  color: var(--status-success);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+/* ER Triage Placement Queue */
+.waitlist-content {
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.waitlist-item {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  transition: all var(--transition-fast);
+}
+
+.waitlist-item:hover {
+  border-color: rgba(14, 165, 233, 0.25);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.waitlist-pat-details {
+  overflow: hidden;
+}
+
+.pat-badges {
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-xs {
+  font-size: 0.65rem !important;
+  padding: 0.15rem 0.4rem !important;
+  height: auto !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.static-form-val {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--text-highlight);
+}
+
+.gap-0-25 { gap: 0.25rem !important; }
+.p-0-5 { padding: 0.5rem !important; }
+.px-0-5 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+.border-color-glow:hover {
+  border-color: rgba(14, 165, 233, 0.2) !important;
+}

@@ -6,17 +6,84 @@ import {
   Calendar, 
   DollarSign, 
   TrendingUp, 
-  Activity
+  Activity,
+  AlertTriangle
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 import './DashboardView.css';
 
 export const DashboardView: React.FC = () => {
-  const { stats, logs, doctors, patients, registerPatient, scheduleAppointment, addToast } = useApp();
+  const { 
+    stats, 
+    logs, 
+    doctors, 
+    patients, 
+    registerPatient, 
+    scheduleAppointment, 
+    addToast,
+    assignPatientBed,
+    releasePatientBed
+  } = useApp();
   
   // Modal states
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [showAptModal, setShowAptModal] = useState(false);
+  
+  // Bed Allocation State
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedBedForAssign, setSelectedBedForAssign] = useState<string | null>(null);
+  const [selectedPatientForAssign, setSelectedPatientForAssign] = useState<string | null>(null);
+  const [patientIdForAssign, setPatientIdForAssign] = useState('');
+  const [bedIdForAssign, setBedIdForAssign] = useState('');
+
+  const HOSPITAL_BEDS = [
+    { id: 'ICU-201', ward: 'ICU', label: 'ICU Bed 201' },
+    { id: 'ICU-202', ward: 'ICU', label: 'ICU Bed 202' },
+    { id: 'ICU-203', ward: 'ICU', label: 'ICU Bed 203' },
+    { id: 'ICU-204', ward: 'ICU', label: 'ICU Bed 204' },
+    { id: 'ER-101', ward: 'ER', label: 'ER Bed 101' },
+    { id: 'ER-102', ward: 'ER', label: 'ER Bed 102' },
+    { id: 'ER-103', ward: 'ER', label: 'ER Bed 103' },
+    { id: 'ER-104', ward: 'ER', label: 'ER Bed 104' },
+    { id: 'GEN-301', ward: 'Gen Ward', label: 'Gen Ward Bed 301' },
+    { id: 'GEN-302', ward: 'Gen Ward', label: 'Gen Ward Bed 302' },
+    { id: 'GEN-303', ward: 'Gen Ward', label: 'Gen Ward Bed 303' },
+    { id: 'GEN-304', ward: 'Gen Ward', label: 'Gen Ward Bed 304' },
+  ];
+
+  const getPatientForBed = (bedId: string) => {
+    return patients.find(p => p.bedNumber === bedId);
+  };
+
+  const handleOpenAssignModal = (bedId: string | null, patientId: string | null) => {
+    setSelectedBedForAssign(bedId);
+    setSelectedPatientForAssign(patientId);
+    setBedIdForAssign(bedId || '');
+    setPatientIdForAssign(patientId || '');
+    setShowAssignModal(true);
+  };
+
+  const handleReleaseBed = async (patientId: string) => {
+    await releasePatientBed(patientId);
+  };
+
+  const handleAssignBedSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalPatientId = selectedPatientForAssign || patientIdForAssign;
+    const finalBedId = selectedBedForAssign || bedIdForAssign;
+
+    if (!finalPatientId || !finalBedId) {
+      addToast('Patient and Bed are both required for allocation.', 'warning');
+      return;
+    }
+
+    await assignPatientBed(finalPatientId, finalBedId);
+    setShowAssignModal(false);
+    setSelectedBedForAssign(null);
+    setSelectedPatientForAssign(null);
+    setBedIdForAssign('');
+    setPatientIdForAssign('');
+  };
   
   // Form states
   const [patientForm, setPatientForm] = useState({
@@ -300,7 +367,76 @@ export const DashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* Audit Log and Quick Console */}
+      {/* Bed Occupancy Grid Section */}
+      <div className="bed-occupancy-section glass-panel mt-2">
+        <div className="panel-header">
+          <h3>Interactive Ward Bed Grid</h3>
+          <p className="panel-desc">Real-time room occupancy and patient placement telemetry</p>
+        </div>
+        <div className="panel-body mt-1">
+          <div className="wards-grid flex-row gap-1">
+            {['ICU', 'ER', 'Gen Ward'].map(wardName => {
+              const wardBeds = HOSPITAL_BEDS.filter(b => b.ward === wardName);
+              return (
+                <div key={wardName} className="ward-column flex-column flex-grow">
+                  <h4 className="ward-title font-bold text-highlight mb-0-5">{wardName} Department</h4>
+                  <div className="beds-layout flex-column gap-0-5">
+                    {wardBeds.map(bed => {
+                      const occupant = getPatientForBed(bed.id);
+                      return (
+                        <div 
+                          key={bed.id} 
+                          className={`bed-card glass-panel-hover flex-column gap-0-5 ${occupant ? 'occupied' : 'vacant'} ${wardName.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          <div className="bed-header flex-between">
+                            <span className="bed-id font-bold text-highlight">{bed.id}</span>
+                            <span className={`bed-status-badge ${occupant ? 'occupied' : 'vacant'}`}>
+                              {occupant ? 'Occupied' : 'Vacant'}
+                            </span>
+                          </div>
+                          
+                          {occupant ? (
+                            <div className="bed-occupant-info flex-column gap-0-25">
+                              <div className="occupant-name font-bold text-highlight text-xs">{occupant.name}</div>
+                              <div className="occupant-meta flex-between text-xs text-secondary">
+                                <span>{occupant.age} yrs / {occupant.gender}</span>
+                                <span className="blood-group text-primary font-bold">{occupant.bloodGroup}</span>
+                              </div>
+                              <div className="occupant-status mt-0-25 flex-between">
+                                <span className={`triage-badge badge-${occupant.status.toLowerCase()}`}>{occupant.status}</span>
+                                <button 
+                                  type="button" 
+                                  className="btn btn-secondary btn-xs px-0-5"
+                                  onClick={() => handleReleaseBed(occupant.id)}
+                                >
+                                  Release
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bed-vacant-info flex-column">
+                              <span className="vacant-text text-muted text-xs mb-0-5">Available for Triage</span>
+                              <button 
+                                type="button" 
+                                className="btn btn-secondary btn-xs full-width"
+                                onClick={() => handleOpenAssignModal(bed.id, null)}
+                              >
+                                Allocate Bed
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Audit Log and ER Triage waitlist */}
       <div className="grid-2 dashboard-bottom">
         {/* Recent Audit Logs */}
         <div className="dashboard-card glass-panel">
@@ -324,21 +460,49 @@ export const DashboardView: React.FC = () => {
           </div>
         </div>
 
-        {/* System Operations Console */}
-        <div className="dashboard-card glass-panel flex-column-justify">
+        {/* ER Triage Placement Waitlist */}
+        <div className="dashboard-card glass-panel">
           <div className="panel-header">
-            <h3>Quick Launch Console</h3>
-            <p className="panel-desc">Rapidly process triage actions without switching nodes</p>
+            <h3>ER Triage Placement Queue</h3>
+            <p className="panel-desc">Admitted and critical care patients awaiting bed assignment</p>
           </div>
-          <div className="console-grid">
-            <button className="console-action-btn" onClick={() => setShowPatientModal(true)}>
-              <div className="console-icon"><UserPlus size={24} /></div>
-              <span>Register Patient</span>
-            </button>
-            <button className="console-action-btn" onClick={() => setShowAptModal(true)}>
-              <div className="console-icon"><Calendar size={24} /></div>
-              <span>Book Appointment</span>
-            </button>
+          <div className="panel-body waitlist-content">
+            <div className="waitlist-items-list flex-column gap-0-5">
+              {patients.filter(p => p.status === 'Admitted' || p.status === 'Critical').map(p => {
+                return (
+                  <div key={p.id} className="waitlist-item flex-between glass-panel p-0-5 border-color-glow">
+                    <div className="waitlist-pat-details flex-column">
+                      <span className="pat-name font-bold text-highlight text-xs">{p.name}</span>
+                      <span className="pat-meta text-muted text-xs">{p.age} yrs / {p.gender} | Blood: {p.bloodGroup}</span>
+                      <div className="pat-badges flex-row gap-0-5 mt-0-25">
+                        <span className={`triage-badge badge-${p.status.toLowerCase()}`}>{p.status}</span>
+                        {p.bedNumber ? (
+                          <span className="triage-badge badge-success font-bold text-xs">Bed: {p.bedNumber}</span>
+                        ) : (
+                          <span className="triage-badge badge-danger font-bold text-xs flex-row gap-0-25">
+                            <AlertTriangle size={10} /> Waitlisted
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {!p.bedNumber && (
+                      <button 
+                        type="button" 
+                        className="btn btn-primary btn-sm px-0-5"
+                        onClick={() => handleOpenAssignModal(null, p.id)}
+                      >
+                        Assign Bed
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {patients.filter(p => p.status === 'Admitted' || p.status === 'Critical').length === 0 && (
+                <div className="empty-waitlist-fallback text-center py-2 text-muted text-xs">
+                  No active admissions in queue. All patients placed.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -485,6 +649,69 @@ export const DashboardView: React.FC = () => {
               <div className="modal-footer flex-row">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowAptModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Book Time-Slot</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Assign Bed Allocation */}
+      {showAssignModal && (
+        <div className="modal-overlay flex-row">
+          <div className="modal-content glass-panel">
+            <div className="modal-header flex-between">
+              <h3>Allocate Clinical Bed Space</h3>
+              <button className="close-modal" onClick={() => setShowAssignModal(false)}>×</button>
+            </div>
+            <form onSubmit={handleAssignBedSubmit}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">Patient *</label>
+                  {selectedPatientForAssign ? (
+                    <div className="static-form-val font-bold text-highlight">
+                      {patients.find(p => p.id === selectedPatientForAssign)?.name} (ID: {selectedPatientForAssign})
+                    </div>
+                  ) : (
+                    <select 
+                      className="form-select" required
+                      value={patientIdForAssign} onChange={e => setPatientIdForAssign(e.target.value)}
+                    >
+                      <option value="">-- Choose Patient --</option>
+                      {patients
+                        .filter(p => (p.status === 'Admitted' || p.status === 'Critical') && !p.bedNumber)
+                        .map(p => (
+                          <option key={p.id} value={p.id}>{p.name} ({p.status} - ID: {p.id})</option>
+                        ))
+                      }
+                    </select>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Bed Space *</label>
+                  {selectedBedForAssign ? (
+                    <div className="static-form-val font-bold text-highlight">
+                      {HOSPITAL_BEDS.find(b => b.id === selectedBedForAssign)?.label} (ID: {selectedBedForAssign})
+                    </div>
+                  ) : (
+                    <select 
+                      className="form-select" required
+                      value={bedIdForAssign} onChange={e => setBedIdForAssign(e.target.value)}
+                    >
+                      <option value="">-- Choose Bed --</option>
+                      {HOSPITAL_BEDS
+                        .filter(b => !patients.some(p => p.bedNumber === b.id))
+                        .map(b => (
+                          <option key={b.id} value={b.id}>{b.label} ({b.ward})</option>
+                        ))
+                      }
+                    </select>
+                  )}
+                </div>
+              </div>
+              <div className="modal-footer flex-row mt-2">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAssignModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Authorize Allocation</button>
               </div>
             </form>
           </div>

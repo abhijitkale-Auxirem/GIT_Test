@@ -67,6 +67,7 @@ export interface Patient {
   status: PatientStatus;
   lastVisit: string;
   medicalRecord: MedicalRecord;
+  bedNumber?: string;
 }
 
 export type AppointmentStatus = 'Scheduled' | 'Completed' | 'Cancelled' | 'No Show';
