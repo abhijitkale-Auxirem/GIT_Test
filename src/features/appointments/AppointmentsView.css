@@ -1,0 +1,434 @@
+.appointments-view {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scheduler Header Control Panel */
+.scheduler-header {
+  padding: 1.25rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.filter-controls {
+  gap: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filter-select {
+  width: 180px;
+  padding: 0.5rem 0.75rem !important;
+}
+
+/* Scheduler Workspace Layout */
+.scheduler-layout {
+  align-items: flex-start;
+}
+
+.schedule-timeline {
+  padding: 1.5rem;
+  min-height: calc(100vh - 250px);
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.timeline-date-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.timeline-date {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  gap: 0.4rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.timeline-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-left: 0.5rem;
+}
+
+/* Timeline Cards */
+.apt-timeline-card {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.apt-timeline-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.apt-timeline-card.scheduled::before { background: var(--status-info); }
+.apt-timeline-card.completed::before { background: var(--status-success); }
+.apt-timeline-card.cancelled::before { background: var(--status-danger); }
+.apt-timeline-card.no-show::before { background: var(--status-warning); }
+
+.apt-timeline-card:hover {
+  border-color: var(--border-color-hover);
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: var(--shadow-md);
+}
+
+.apt-card-top {
+  margin-bottom: 0.75rem;
+}
+
+.apt-time {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.apt-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.detail-row {
+  font-size: 0.85rem;
+  gap: 0.6rem;
+  color: var(--text-secondary);
+}
+
+.detail-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.pat-id-tag {
+  font-size: 0.7rem;
+  font-family: monospace;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0 0.35rem;
+  border-radius: 4px;
+}
+
+.reason-row {
+  align-items: flex-start;
+}
+
+.apt-reason {
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+}
+
+.clinical-notes-box {
+  background: rgba(16, 185, 129, 0.03);
+  border: 1px dashed rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.notes-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--status-success);
+  text-transform: uppercase;
+}
+
+.notes-text {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-top: 0.15rem;
+}
+
+.apt-card-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  gap: 0.75rem;
+}
+
+/* Doctors availability mini-list */
+.doctor-status-sidebar {
+  padding: 1.5rem;
+}
+
+.doctors-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.doc-mini-card {
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.doc-mini-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.doc-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.doc-avatar-mini {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.doc-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+}
+
+.doc-status-dot.on-duty, .doc-status-dot.available { background: var(--status-success); }
+.doc-status-dot.in-surgery { background: var(--status-danger); }
+.doc-status-dot.off-duty { background: var(--text-muted); }
+.doc-status-dot.on-leave { background: var(--status-warning); }
+
+.doc-mini-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.doc-name {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-specialty {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.doc-shift {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.empty-scheduler-fallback {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 3rem 0;
+  color: var(--text-muted);
+}
+
+.mb-1 { margin-bottom: 0.5rem; }
+.py-2 { padding: 2rem 0; }
+
+/* Weekly Matrix Grid Scheduler Styles */
+
+.toggle-buttons {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.toggle-buttons .toggle-btn {
+  border: none;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.matrix-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.matrix-navigation {
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.current-week-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.matrix-grid-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(10, 14, 26, 0.2);
+}
+
+.matrix-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 800px;
+}
+
+.matrix-grid-table th {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.matrix-grid-table th:last-child {
+  border-right: none;
+}
+
+.matrix-grid-table th .day-name {
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.matrix-grid-table th .day-date {
+  color: var(--text-highlight);
+  margin-top: 0.15rem;
+}
+
+.matrix-grid-table th.today-column-header {
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+}
+
+.matrix-grid-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 0.35rem;
+  vertical-align: top;
+  height: 64px;
+}
+
+.matrix-grid-table td:last-child {
+  border-right: none;
+}
+
+.matrix-grid-table td.time-col {
+  width: 90px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+  vertical-align: middle;
+  background: rgba(255, 255, 255, 0.015);
+  border-right: 1px solid var(--border-color);
+  height: auto;
+}
+
+.matrix-grid-table td.grid-cell {
+  background: rgba(255, 255, 255, 0.005);
+}
+
+.matrix-grid-table td.grid-cell:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+/* Event Card Overlays inside cells */
+.matrix-apt-card {
+  border-radius: 4px;
+  padding: 0.35rem;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  cursor: pointer;
+  position: relative;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0.25rem;
+}
+
+.matrix-apt-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.matrix-apt-card.scheduled {
+  background: rgba(14, 165, 233, 0.12);
+  color: var(--status-info);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.matrix-apt-card.completed {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--status-success);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.matrix-apt-card.cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--status-danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.matrix-apt-card.no-show {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--status-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.matrix-apt-time {
+  font-size: 0.6rem;
+  opacity: 0.8;
+  margin-bottom: 0.15rem;
+}
+
+.matrix-apt-patient {
+  color: var(--text-highlight);
+}
+
+.matrix-apt-doctor {
+  font-size: 0.6rem;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

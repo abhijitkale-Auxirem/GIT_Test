@@ -1,0 +1,492 @@
+.billing-view {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Billing Metrics widgets */
+.billing-widgets {
+  margin-bottom: 2rem;
+}
+
+.billing-summary-card {
+  padding: 1.2rem 1.5rem;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+/* Claim status indicator elements */
+.claim-status-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.claim-provider {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-highlight);
+}
+
+.claim-status-badge {
+  display: inline-flex;
+  width: max-content;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+}
+
+.claim-status-badge.approved {
+  background: var(--status-success-bg);
+  color: var(--status-success);
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.claim-status-badge.pending {
+  background: var(--status-warning-bg);
+  color: var(--status-warning);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.claim-status-badge.denied {
+  background: var(--status-danger-bg);
+  color: var(--status-danger);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.claim-status-badge.n\/a {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+/* Invoice detailed breakdowns list */
+.invoice-items-breakdown {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+}
+
+.items-list-box {
+  background: rgba(10, 14, 26, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.invoice-item-row {
+  border-bottom: 1px dashed var(--border-color);
+  padding: 0.65rem 0;
+  font-size: 0.8rem;
+}
+
+.invoice-item-row:last-child {
+  border-bottom: none;
+}
+
+.item-desc-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-desc {
+  font-size: 0.825rem;
+}
+
+.item-qty {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.item-total-val {
+  color: var(--text-highlight);
+}
+
+.invoice-calculation-summary {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+}
+
+.calc-row {
+  padding: 0.2rem 0;
+  color: var(--text-secondary);
+}
+
+.total-row {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Settlement confirmed banner */
+.settlement-confirmed {
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--status-success);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  gap: 0.5rem;
+}
+
+/* Dynamic invoice builder items list */
+.invoice-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-items-creator {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.items-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.preview-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.item-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.btn-remove-item {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.btn-remove-item:hover {
+  color: var(--status-danger);
+}
+
+.items-adder {
+  gap: 0.4rem;
+}
+
+.qty-input {
+  width: 60px;
+  text-align: center;
+}
+
+.qty-input {
+  width: 60px;
+  text-align: center;
+}
+
+.price-input {
+  width: 100px;
+  text-align: center;
+}
+
+.insurance-fields-block {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.invoice-modal {
+  max-width: 600px !important;
+}
+
+.billing-actions-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.mt-0-5 { margin-top: 0.25rem; }
+
+/* Printable Invoice Modal & Document Sheets */
+
+.printable-modal-content {
+  max-width: 800px !important;
+  width: 90% !important;
+}
+
+.printable-statement-container {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  margin-top: 1rem;
+  color: var(--text-primary);
+}
+
+.print-hospital-header {
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-highlight);
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hospital-contact {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.print-invoice-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-highlight);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.meta-line {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.divider-line {
+  height: 1px;
+  background: var(--border-color);
+  margin: 1.5rem 0;
+}
+
+.print-patient-info {
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.patient-billing-box, .insurance-billing-box {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+}
+
+.box-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.info-val {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Printable Invoice Line-Items Table */
+.printable-invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+  font-size: 0.8rem;
+}
+
+.printable-invoice-table th {
+  padding: 0.65rem 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-highlight);
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color);
+  text-align: left;
+}
+
+.printable-invoice-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.printable-invoice-table tr.summary-row td {
+  border-bottom: none;
+  padding: 0.4rem 0.85rem;
+}
+
+.printable-invoice-table tr.summary-row.total-row td {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.printable-invoice-table td.no-border {
+  border: none;
+  background: transparent;
+}
+
+/* Signatures details block */
+.print-signatures-block {
+  margin-top: 3rem;
+  gap: 3rem;
+}
+
+.signature-box {
+  flex: 1;
+  max-width: 300px;
+}
+
+.signature-line {
+  border-bottom: 1px solid var(--text-muted);
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+
+.signature-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.print-footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.audit-detail {
+  font-family: monospace;
+  margin-top: 0.35rem;
+}
+
+.mb-0-5 {
+  margin-bottom: 0.5rem !important;
+}
+
+/* print media query overrides */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  /* Hide all main app interface layout nodes */
+  body > div:not(.print-modal-overlay),
+  .no-print-section,
+  .sidebar,
+  .top-header,
+  .page-wrapper,
+  .modal-overlay:not(.print-modal-overlay) {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .print-modal-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    display: block !important;
+  }
+
+  .printable-modal-content {
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .printable-statement-container {
+    background: #ffffff !important;
+    border: none !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* Force print color fidelity and readability */
+  .brand-title,
+  .print-invoice-title,
+  .info-val,
+  .printable-invoice-table th,
+  .printable-invoice-table td,
+  .signature-label,
+  .print-footer p,
+  strong {
+    color: #000000 !important;
+    text-shadow: none !important;
+  }
+
+  .divider-line {
+    background: #000000 !important;
+    height: 1px !important;
+  }
+
+  .patient-billing-box,
+  .insurance-billing-box {
+    border: 1px solid #000000 !important;
+    background: #ffffff !important;
+  }
+
+  .box-title {
+    color: #000000 !important;
+    border-bottom: 1px solid #000000 !important;
+  }
+
+  .printable-invoice-table th {
+    border-bottom: 2px solid #000000 !important;
+    background: #f3f4f6 !important;
+  }
+
+  .printable-invoice-table td {
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  .printable-invoice-table tr.summary-row.total-row td {
+    border-top: 1px solid #000000 !important;
+  }
+
+  .signature-line {
+    border-bottom: 1px solid #000000 !important;
+  }
+
+  .print-footer {
+    border-top: 1px solid #000000 !important;
+  }
+}
