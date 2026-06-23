@@ -11,12 +11,15 @@ import type {
   VitalsReading, 
   Prescription,
   LabReportResult,
+  Ambulance,
+  AmbulanceStatus,
+  DispatchSeverity,
   Nurse,
   ClinicalDepartment
 } from '../types';
 import { mockApi } from '../services/mockApi';
 
-export type ViewType = 'dashboard' | 'patients' | 'appointments' | 'doctors' | 'billing' | 'staff';
+export type ViewType = 'dashboard' | 'patients' | 'appointments' | 'doctors' | 'billing' | 'ambulance' | 'staff';
 
 export interface ToastMessage {
   id: string;
@@ -63,6 +66,10 @@ interface AppContextType {
   fillLabReport: (patientId: string, reportId: string, results: LabReportResult[], notes?: string) => Promise<void>;
   assignPatientBed: (patientId: string, bedNumber: string) => Promise<void>;
   releasePatientBed: (patientId: string) => Promise<void>;
+  ambulances: Ambulance[];
+  dispatchUnit: (ambulanceId: string, patientId: string, location: string, severity: DispatchSeverity) => Promise<void>;
+  stepAmbulanceProgress: (ambulanceId: string) => Promise<void>;
+  setAmbulanceStatus: (ambulanceId: string, status: AmbulanceStatus) => Promise<void>;
   
   // Staff & Departments State
   nurses: Nurse[];
@@ -96,6 +103,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
+  const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
   const [nurses, setNurses] = useState<Nurse[]>([]);
   const [departments, setDepartments] = useState<ClinicalDepartment[]>([]);
   
@@ -132,7 +140,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         fetchedDocs, 
         fetchedInvoices, 
         fetchedLogs, 
-        fetchedStats,
+        fetchedStats, 
+        fetchedAmbulances,
         fetchedNurses,
         fetchedDepartments
       ] = await Promise.all([
@@ -142,6 +151,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         mockApi.getInvoices(),
         mockApi.getLogs(),
         mockApi.getStats(),
+        mockApi.getAmbulances(),
         mockApi.getNurses(),
         mockApi.getDepartments()
       ]);
@@ -152,6 +162,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setInvoices(fetchedInvoices);
       setLogs(fetchedLogs);
       setStats(fetchedStats);
+      setAmbulances(fetchedAmbulances);
       setNurses(fetchedNurses);
       setDepartments(fetchedDepartments);
     } catch (err: any) {
@@ -367,6 +378,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const dispatchUnit = async (ambulanceId: string, patientId: string, location: string, severity: DispatchSeverity) => {
+    setIsLoading(true);
+    try {
+      const patient = patients.find(p => p.id === patientId);
+      const patientName = patient ? patient.name : 'Unknown Patient';
+      await mockApi.dispatchAmbulance(ambulanceId, patientId, patientName, location, severity);
+      addToast(`Ambulance dispatch authorized.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to dispatch ambulance.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const registerDoctor = async (doctorData: Omit<Doctor, 'id'>) => {
     setIsLoading(true);
     try {
@@ -380,6 +405,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const stepAmbulanceProgress = async (ambulanceId: string) => {
+    setIsLoading(true);
+    try {
+      await mockApi.updateAmbulanceProgress(ambulanceId);
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to update transit checkpoint.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const registerNurse = async (nurseData: Omit<Nurse, 'id' | 'role'>) => {
     setIsLoading(true);
     try {
@@ -393,6 +429,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const setAmbulanceStatus = async (ambulanceId: string, status: AmbulanceStatus) => {
+    setIsLoading(true);
+    try {
+      await mockApi.updateAmbulanceStatus(ambulanceId, status);
+      addToast(`Ambulance status updated to ${status}.`, 'success');
+      await refreshData();
+    } catch (err: any) {
+      addToast(err?.message || 'Failed to update ambulance status.', 'danger');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const changeNurseStatus = async (id: string, status: Nurse['status']) => {
     setIsLoading(true);
     try {
@@ -471,6 +519,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         fillLabReport,
         assignPatientBed,
         releasePatientBed,
+        ambulances,
+        dispatchUnit,
+        stepAmbulanceProgress,
+        setAmbulanceStatus,
         nurses,
         departments,
         registerDoctor,
